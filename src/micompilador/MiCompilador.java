@@ -26,7 +26,7 @@ public class MiCompilador {
             return;
         }
 
-        String input = leerArchivo("test.txt");
+        String input = leerArchivo(args[0]);
         if (input == null || input.isEmpty()) {
             return;
         }
