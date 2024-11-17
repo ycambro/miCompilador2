@@ -21,7 +21,7 @@ public class MiCompilador {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (args.length < 1) {
+        if (args.length < 2) {
             System.out.println("Uso: [NOMBRE DEL PROGRAMA] [ARCHIVO DE ENTRADA] [ARCHIVO DE SALIDA]");
             return;
         }
