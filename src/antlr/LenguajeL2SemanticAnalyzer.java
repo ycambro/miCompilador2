@@ -16,6 +16,7 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
     private final Map<String, Boolean> symbolTable = new HashMap<>();
     private String ultimaDeclarada;
     private int veces = 0;
+    private int errores = 0;
     
     // Visitamos la regla de declaración en asignación
     @Override
@@ -48,10 +49,16 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
         if (ctx.identificador() != null) {
             String varName = ctx.identificador().getText();
             if (!symbolTable.containsKey(varName) || (varName.equals(ultimaDeclarada) && veces > 0)) {
-                reportarError("Variable no declarada '" + varName + "'");
+                reportarError("Undeclared variable '" + varName + "'");
             }
             if (varName.equals(ultimaDeclarada)) {
                 veces ++;
+            }
+        }
+        if (ctx.expresion() != null && ctx.getText().contains("/")) {
+            ParseTree secondChild = ctx.getChild(2);
+            if (secondChild.getText().equals("0")) {
+                reportarError("Division by zero");
             }
         }
         return visitChildren(ctx);
@@ -62,14 +69,18 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
     public Void visitImpresion(LenguajeL2Parser.ImpresionContext ctx) {
         String varName = ctx.identificador().getText();
         if (!symbolTable.containsKey(varName)) {
-            reportarError("Variable no declarada en print '" + varName + "'");
+            reportarError("Undeclared variable in print '" + varName + "'");
         }
         return visitChildren(ctx);
     }
     
     public void reportarError(String msg) {
-        System.err.println("Error [Fase Semantica]: "+ msg);
-        System.exit(1);
+        System.err.println(msg + "\n");
+        errores ++;
+    }
+
+    public boolean hasErrors() {
+        return errores > 0;
     }
 
     // Método para depuración opcional: Imprimir la tabla de símbolos
