@@ -13,7 +13,7 @@ import java.util.Map;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
-    private final Map<String, Boolean> symbolTable = new HashMap<>();
+    private Map<String, Boolean> tablaSimbolos = new HashMap<>();
     private String ultimaDeclarada;
     private int veces = 0;
     private int errores = 0;
@@ -29,8 +29,8 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
                 firstChild = firstChild.getChild(0);
             }
             String varName = firstChild.getText();
-            if (!symbolTable.containsKey(varName)) {
-                symbolTable.put(varName, true);  // Guardamos la variable como declarada
+            if (!tablaSimbolos.containsKey(varName)) {
+                tablaSimbolos.put(varName, true);  // Guardamos la variable como declarada
                 ultimaDeclarada = varName;
             } else {
                 ultimaDeclarada = "";
@@ -48,13 +48,15 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
         // Verificar si la expresión contiene un identificador
         if (ctx.identificador() != null) {
             String varName = ctx.identificador().getText();
-            if (!symbolTable.containsKey(varName) || (varName.equals(ultimaDeclarada) && veces > 0)) {
+            if (!tablaSimbolos.containsKey(varName) || (varName.equals(ultimaDeclarada) && veces > 0)) {
+                tablaSimbolos.replace(varName, false);
                 reportarError("Undeclared variable '" + varName + "'");
             }
             if (varName.equals(ultimaDeclarada)) {
                 veces ++;
             }
         }
+        // Verificar si la expresión contiene una división por cero
         if (ctx.expresion() != null && ctx.getText().contains("/")) {
             ParseTree secondChild = ctx.getChild(2);
             if (secondChild.getText().equals("0")) {
@@ -68,24 +70,31 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
     @Override
     public Void visitImpresion(LenguajeL2Parser.ImpresionContext ctx) {
         String varName = ctx.identificador().getText();
-        if (!symbolTable.containsKey(varName)) {
+        if (!tablaSimbolos.containsKey(varName)) {
             reportarError("Undeclared variable in print '" + varName + "'");
         }
         return visitChildren(ctx);
     }
     
+    // Método para reportar errores
     public void reportarError(String msg) {
-        System.err.println(msg + "\n");
+        System.err.println(msg);
         errores ++;
     }
 
+    // Verificar si hubo errores
     public boolean hasErrors() {
         return errores > 0;
     }
 
-    // Método para depuración opcional: Imprimir la tabla de símbolos
-    public void printSymbolTable() {
-        System.out.println("Tabla de Símbolos: " + symbolTable);
+    // Método para imprimir la tabla de símbolos
+    public void printTablaSimbolos() {
+        System.out.println("Tabla de Símbolos: " + tablaSimbolos);
     }
+
+    public Map<String, Boolean> getTablaSimbolos() {
+        return tablaSimbolos;
+    }
+
 }
 
