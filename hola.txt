@@ -16,20 +16,12 @@ Token: 3, Tipo: 25, Línea: 3, Posición: 5
 Token: +, Tipo: 13, Línea: 3, Posición: 7
 Token: 4, Tipo: 26, Línea: 3, Posición: 9
 Token: ;, Tipo: 1, Línea: 3, Posición: 10
-Token: z, Tipo: 57, Línea: 4, Posición: 0
-Token: =, Tipo: 11, Línea: 4, Posición: 2
-Token: z, Tipo: 57, Línea: 4, Posición: 4
-Token: ;, Tipo: 1, Línea: 4, Posición: 5
-Token: <EOF>, Tipo: -1, Línea: 4, Posición: 6
+Token: <EOF>, Tipo: -1, Línea: 3, Posición: 11
 
 
 === AST ===
-(programa (declaraciones (declaracion (expresion (identificador (letra a)) = (expresion (numero (digito 2))))) ; (declaraciones (declaracion (expresion (expresion (identificador (letra a)) = (expresion (identificador (letra a)))) (operador_aditivo +) (expresion (numero (digito 2))))) ; (declaraciones (declaracion (expresion (expresion (identificador (letra a) (letra b)) = (expresion (numero (digito 3)))) (operador_aditivo +) (expresion (numero (digito 4))))) ; (declaraciones (declaracion (expresion (identificador (letra z)) = (expresion (identificador (letra z))))) ; declaraciones)))) <EOF>)
+(programa (declaraciones (declaracion (expresion (identificador (letra a)) = (expresion (numero (digito 2))))) ; (declaraciones (declaracion (expresion (expresion (identificador (letra a)) = (expresion (identificador (letra a)))) (operador_aditivo +) (expresion (numero (digito 2))))) ; (declaraciones (declaracion (expresion (expresion (identificador (letra a) (letra b)) = (expresion (numero (digito 3)))) (operador_aditivo +) (expresion (numero (digito 4))))) ; declaraciones))) <EOF>)
 
 === Tabla de Símbolos ===
 Variable: a, Declarada: true
 Variable: ab, Declarada: true
-Variable: z, Declarada: false
-
-
-Errores encontrados durante el analisis semantico.
