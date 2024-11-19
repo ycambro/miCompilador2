@@ -23,17 +23,19 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
     public Void visitDeclaracion(LenguajeL2Parser.DeclaracionContext ctx) {
         // Si es una expresión de tipo "identificador = expresion"
         if (ctx.expresion() != null && ctx.getText().contains("=")) {
-            ultimaDeclarada = null;
-            ParseTree firstChild = ctx.expresion().getChild(0);
-            while (firstChild.getText().contains("=")) {
-                firstChild = firstChild.getChild(0);
+            ParseTree primerHijo = ctx.expresion().getChild(0);
+
+            // Buscamos el identificador de la expresión esto en caso de que sea una expresión muy grande
+            while (primerHijo.getText().contains("=")) {
+                primerHijo = primerHijo.getChild(0);
             }
-            String varName = firstChild.getText();
-            if (!tablaSimbolos.containsKey(varName)) {
-                tablaSimbolos.put(varName, true);  // Guardamos la variable como declarada
-                ultimaDeclarada = varName;
+
+            String nombreIdentificador = primerHijo.getText(); // Obtenemos el nombre de la variable
+            if (!tablaSimbolos.containsKey(nombreIdentificador)) {
+                tablaSimbolos.put(nombreIdentificador, true);  // Guardamos la variable como declarada
+                ultimaDeclarada = nombreIdentificador;
             } else {
-                ultimaDeclarada = "";
+                ultimaDeclarada = ""; // Si la variable ya está declarada, no se guarda y no hay problemas
             }
             veces = 0;
         } else if (!ctx.getText().contains("=")) {
@@ -45,33 +47,36 @@ public class LenguajeL2SemanticAnalyzer extends LenguajeL2BaseVisitor<Void> {
     // Visitamos las expresiones para verificar el uso de variables
     @Override
     public Void visitExpresion(LenguajeL2Parser.ExpresionContext ctx) {
-        // Verificar si la expresión contiene un identificador
+        // Se verifica si la expresión contiene un identificador
         if (ctx.identificador() != null) {
-            String varName = ctx.identificador().getText();
-            if (!tablaSimbolos.containsKey(varName) || (varName.equals(ultimaDeclarada) && veces > 0)) {
-                tablaSimbolos.replace(varName, false);
-                reportarError("Undeclared variable '" + varName + "'");
+            String nombreIdentificador = ctx.identificador().getText();
+            if (!tablaSimbolos.containsKey(nombreIdentificador)) {
+                reportarError("Undeclared variable '" + nombreIdentificador + "'");
             }
-            if (varName.equals(ultimaDeclarada)) {
+            if (nombreIdentificador.equals(ultimaDeclarada) && veces > 0) {
+                tablaSimbolos.replace(nombreIdentificador, false);
+                reportarError("Variable '" + nombreIdentificador + "' is being used before being declared");
+            }
+            if (nombreIdentificador.equals(ultimaDeclarada)) {
                 veces ++;
             }
         }
-        // Verificar si la expresión contiene una división por cero
+        // Se verifica si la expresión contiene una división por cero
         if (ctx.expresion() != null && ctx.getText().contains("/")) {
-            ParseTree secondChild = ctx.getChild(2);
-            if (secondChild.getText().equals("0")) {
+            ParseTree segundoHijo = ctx.getChild(2);
+            if (segundoHijo.getText().equals("0")) {
                 reportarError("Division by zero");
             }
         }
         return visitChildren(ctx);
     }
 
-    // Verificar que la variable en "print" esté declarada
+    // Se verifica que la variable en "print" esté declarada
     @Override
     public Void visitImpresion(LenguajeL2Parser.ImpresionContext ctx) {
-        String varName = ctx.identificador().getText();
-        if (!tablaSimbolos.containsKey(varName)) {
-            reportarError("Undeclared variable in print '" + varName + "'");
+        String nombreIdentificador = ctx.identificador().getText();
+        if (!tablaSimbolos.containsKey(nombreIdentificador)) {
+            reportarError("Undeclared variable in print '" + nombreIdentificador + "'");
         }
         return visitChildren(ctx);
     }
